@@ -1,0 +1,43 @@
+name: Upload NumPy Wheel to Hugging Face Space
+
+on:
+  workflow_run:
+    workflows: ["Build NumPy Wheel"]
+    types:
+      - completed
+  workflow_dispatch:   # تشغيل يدوي
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+    - name: Download built wheel artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: numpy-wheel
+        path: dist/
+
+    - name: Install huggingface-hub
+      run: pip install huggingface-hub
+
+    - name: Upload to Hugging Face Space
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        # العثور على اسم العجلة
+        WHEEL_FILE=$(ls dist/*.whl)
+        echo "Uploading $WHEEL_FILE"
+        python -c "
+        from huggingface_hub import HfApi
+        import os
+        api = HfApi()
+        api.upload_file(
+            path_or_fileobj='$WHEEL_FILE',
+            path_in_repo='numpy-2.0.2-cp313-cp313-manylinux_2_17_x86_64.whl',
+            repo_id='qalam249/whisperx',
+            repo_type='space',
+            token='${{ secrets.HF_TOKEN }}'
+        )
+        print('Upload successful!')
+        "
