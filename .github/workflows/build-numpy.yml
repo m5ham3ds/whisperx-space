@@ -3,9 +3,7 @@ name: Build NumPy Wheel
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'requirements.txt'   # يُشغّل عندما يتغير requirements.txt
-  workflow_dispatch:         # تشغيل يدوي
+  workflow_dispatch:
 
 jobs:
   build:
