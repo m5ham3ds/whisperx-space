@@ -1,0 +1,45 @@
+name: Build NumPy Wheel
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'requirements.txt'   # يُشغّل عندما يتغير requirements.txt
+  workflow_dispatch:         # تشغيل يدوي
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.13']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel setuptools cython
+
+    - name: Build numpy wheel
+      run: |
+        # تحميل مصدر numpy
+        pip download numpy==2.0.2 --no-deps
+        tar -xzf numpy-2.0.2.tar.gz
+        cd numpy-2.0.2
+        python -m build --wheel
+        mkdir -p ../dist
+        cp dist/*.whl ../dist/
+
+    - name: Upload wheel as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: numpy-wheel
+        path: dist/
+        retention-days: 7
