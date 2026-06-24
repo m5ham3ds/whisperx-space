@@ -1,0 +1,10 @@
+gradio>=5.9.0
+whisperx==3.7.0
+requests==2.32.3
+yt-dlp==2024.12.23
+torch==2.6.0
+torchaudio==2.6.0
+lightning-fabric==2.2.2
+pytorch-lightning==2.2.2
+numpy==2.0.2
+audioop-lts
